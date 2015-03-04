@@ -7,7 +7,7 @@ import base64
 import os.path
 import argparse
 from util import *
-import SearchReddit
+
 
 
 
@@ -57,8 +57,8 @@ class Crawler():
 def main():
 	logging.getLogger().setLevel(logging.INFO)
 	parser = argparse.ArgumentParser(description = "Crawl /r/learnprogramming")
-	parser.add_argument("--startUrl", dest = "startUrl")
-	parser.add_argument("--storeDir", dest = "storeDir")
+	parser.add_argument("--startUrl", dest = "startUrl",required=True)
+	parser.add_argument("--storeDir", dest = "storeDir",required=True)
 	args = parser.parse_args()
 	crawler = Crawler(args.startUrl,args.storeDir)
 	crawler.crawl()
