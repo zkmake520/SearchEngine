@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 import os.path
 import os
 import json
@@ -29,15 +30,27 @@ class Indexer:
 
 	# dump as json
 	def dumpToDisk(self,IndexDir):
-		invertedIndexFileName = os.path.join(IndexDir,"inverted")
-		forwardIndexFileName = os.path.join(IndexDir,"forward")
-		urlToIdFileName = os.path.join(IndexDir,"urlToId")
-		invertedIndexFile = open(invertedIndexFileName,"w")
-		forwardIndexFile = open(forwardIndexFileName,"w")	
-		urlToIdFile = open(urlToIdFileName,"w")
-		json.dump(self.urlToId,urlToIdFile,indent=4)
-		json.dump(self.invertedIndex,invertedIndexFile,indent=4)
-		json.dump(self.forwardIndex,forwardIndexFile,indent=4)
+		def jsonDumpToFile(source,fileName):
+			file = open(os.path.join(IndexDir,fileName),"w")
+			json.dump(source,file,indent=4)
+
+		jsonDumpToFile(self.urlToId,"urlToId")
+		jsonDumpToFile(self.invertedIndex,"invertedIndex")
+		jsonDumpToFile(self.forwardIndex,"forwardIndex")
+class Searcher():
+	def __init__(self,indexDir):
+		self.invertedIndex = dict()
+		self.forwardIndex = dict()
+		self.urlToId = dict()     #url is too long
+		self.docCount = 0
+		def jsonLoadFromFile(source,fileName):
+			file = open(os.path.join(indexDir,fileName),"r")
+			json.load(source,file,indent=4)
+		jsonLoadFromFile(self.invertedIndex,"invertedIndex")
+		jsonLoadFromFile(self.urlToId,"urlToId")
+		jsonLoadFromFile(self.forwardIndex,"forwardIndex")
+	def findDocument(queryStr):
+		return sum([self.invertedIndex[word] for word in queryStr],[])
 
 def createIndexDir(storedDocumentDir,indexDir):
 	indexer = Indexer()
@@ -51,8 +64,8 @@ def createIndexDir(storedDocumentDir,indexDir):
 def main():
 	logging.getLogger().setLevel(logging.INFO)
 	parser = argparse.ArgumentParser(description = "Index/r/learnprogramming")
-	parser.add_argument("--storedDocumentDir", dest = "storedDocumentDir")
-	parser.add_argument("--indexDir", dest = "indexDir")
+	parser.add_argument("--storedDocumentDir", dest = "storedDocumentDir", required= True)
+	parser.add_argument("--indexDir", dest = "indexDir", required = True)
 	args = parser.parse_args()
 	createIndexDir(args.storedDocumentDir,args.indexDir)
 
