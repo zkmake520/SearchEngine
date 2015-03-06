@@ -13,7 +13,7 @@ class Indexer:
 		self.invertedIndex = dict()
 		self.forwardIndex = dict()
 		self.urlToId = dict()     #url is too long
-		self.docCount = 0
+		self.docCount =0
 	# TOdo: remove this assumptions	
 	# assumes that adddocument () is never called twice for a document
 	# assumes that a document has an unique url
@@ -35,23 +35,25 @@ class Indexer:
 			json.dump(source,file,indent=4)
 
 		jsonDumpToFile(self.urlToId,"urlToId")
-		jsonDumpToFile(self.invertedIndex,"invertedIndex")
-		jsonDumpToFile(self.forwardIndex,"forwardIndex")
+		jsonDumpToFile(self.invertedIndex,"inverted")
+		jsonDumpToFile(self.forwardIndex,"forward")
 class Searcher():
 	def __init__(self,indexDir):
 		self.invertedIndex = dict()
 		self.forwardIndex = dict()
 		self.urlToId = dict()     #url is too long
 		self.docCount = 0
-		def jsonLoadFromFile(source,fileName):
+		def jsonLoadFromFile(fileName):
 			file = open(os.path.join(indexDir,fileName),"r")
-			json.load(source,file,indent=4)
-		jsonLoadFromFile(self.invertedIndex,"invertedIndex")
-		jsonLoadFromFile(self.urlToId,"urlToId")
-		jsonLoadFromFile(self.forwardIndex,"forwardIndex")
-	def findDocument(queryStr):
-		return sum([self.invertedIndex[word] for word in queryStr],[])
+			return json.load(file)
 
+		self.invertedIndex=jsonLoadFromFile("inverted")
+		self.urlToId=jsonLoadFromFile("urlToId")
+		self.forwardIndex=jsonLoadFromFile("forward")
+	def findDocument(self,queryStr):
+		return sum([self.invertedIndex[word] for word in queryStr],[])
+	def getUrl(self,id):  # here we load all data from files thus the type is string !
+		return self.urlToId[str(id)]	
 def createIndexDir(storedDocumentDir,indexDir):
 	indexer = Indexer()
 	for fileName in os.listdir(storedDocumentDir):
