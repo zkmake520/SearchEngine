@@ -4,6 +4,7 @@ from flask_wtf import Form
 from wtforms import StringField, SubmitField 
 from wtforms.validators import DataRequired
 from Indexer import Searcher
+from LangProc import queryTerms
 app = Flask(__name__)
 Bootstrap(app)
 searcher = Searcher("indexDB")
@@ -20,13 +21,12 @@ def index():
 
 @app.route("/search_results/<query>")
 def search_results(query):
-	queryStr = query.split(" ")
+	queryStr = queryTerms(query)
 	queryStr = [word for word in queryStr if word != ""]
 	docId = searcher.findDocument_AND(queryStr)
 	urls = [searcher.getUrl(id) for id in docId]
 	snippets = [searcher.getSnippets(queryStr,id) for id in docId]
 	urlsAndSnippets= zip(urls,snippets)
-	print urlsAndSnippets
 	return render_template("search_results.html",query = query ,urlsAndSnippets= urlsAndSnippets)
 if __name__ == "__main__":
     app.run(debug=True)

@@ -8,6 +8,7 @@ from collections import defaultdict
 import base64
 import logging
 import sys
+from LangProc import docTerms
 # todo : remove this assumptions
 # Indexer assumes thast collection fits in memory()
 class Indexer:
@@ -63,20 +64,25 @@ class Searcher():
 
 	def getSnippets(self,queryStr,id):
 		id = unicode(id)
-		currentWindow = []
+		currentWindow = [-1]*(len(queryStr))
+		keyLen = 0
 		minWindow = []
 		minSize = sys.maxint
+		bestIndenticalWordSize = 0
 		for pos,word in enumerate(self.forwardIndex[id]):
 			if word in queryStr:
-				currentWindow.append((pos,word))
-				if len(currentWindow) > 1 and currentWindow[0][1] == word:
-					currentWindow.pop(0)
-				if len(currentWindow) == len(queryStr) and (pos-currentWindow[0][0] + 1) < minSize:
-					minWindow = currentWindow[:]
-					minSize = pos-currentWindow[0][0] + 1
-		docLength = len(self.forwardIndex[id])			
-		snippetsStart = max(minWindow[0][0]-8,0)
-		snippetsEnd = min(docLength, minWindow[len(minWindow)-1][0]+1+8)
+				currentWindow[queryStr.index(word)] = pos
+				if  -1 not in currentWindow:
+					start = min(currentWindow)
+					end = pos
+					indenticalWordSize = len(set(self.forwardIndex[id][start : end+1])) 
+					if(minSize >  end-start+1) or (indenticalWordSize > bestIndenticalWordSize and minSize+2 >= end-start+1):
+						minWindow = currentWindow[:] 
+						minSize = end-start + 1 
+						bestIndenticalWordSize = indenticalWordSize
+		docLength = len(self.forwardIndex[id])
+		snippetsStart = max(min(minWindow)-8,0)
+		snippetsEnd = min(docLength, max(minWindow)+1+8)
 		return [(word,word in queryStr) for word in self.forwardIndex[id][snippetsStart:snippetsEnd]] #excellent implemention:return list of truple make critical word be true in turple
 
 	def getDocumentText(self,id):
@@ -90,7 +96,7 @@ def createIndexDir(storedDocumentDir,indexDir):
 	for fileName in os.listdir(storedDocumentDir):
 		logging.info(u"Adding Document: {}".format(base64.b16decode(fileName)))
 		openFile = open(os.path.join(storedDocumentDir,fileName)) # TODO:word are separated not only be space
-		parsedText = parseRedditPost(openFile.read()).split(" ")
+		parsedText = docTerms(parseRedditPost(openFile.read()))
 		indexer.addDocument(base64.b16decode(fileName),parsedText)
 	indexer.dumpToDisk(indexDir)
 
