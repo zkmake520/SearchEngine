@@ -1,0 +1,26 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}This is a search engine{% endblock %}
+
+{% block content %}
+<div class="container">
+ 	<p>
+		<h1>User requested [{{query}}]
+		</h1>
+	</p>
+	<ol>
+		{% for urlandsnippet  in urlsAndSnippets %}
+			{% set x = urlandsnippet[0]%}
+			{% set y = urlandsnippet[1]%}
+			<li> <p><a href="{{x}}">{{x}}</a>
+				<p>
+				 {%for word,flag in y%}
+				 	{% if flag %}<b>{{word}}</b>
+				 	{% else %}{{word}}
+				 	{% endif %}
+				 {%endfor%}
+			</li>
+
+		{% endfor %}
+	</ol>
+</div>
+{% endblock %}
