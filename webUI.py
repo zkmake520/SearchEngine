@@ -20,8 +20,13 @@ def index():
 
 @app.route("/search_results/<query>")
 def search_results(query):
-	posAndDocId = searcher.findDocument(query.split(" "))
-	urls = [searcher.getUrl(id) for postition,id in posAndDocId]
-	return render_template("search_results.html",query = query , urls=urls)
+	queryStr = query.split(" ")
+	queryStr = [word for word in queryStr if word != ""]
+	docId = searcher.findDocument_AND(queryStr)
+	urls = [searcher.getUrl(id) for id in docId]
+	snippets = [searcher.getSnippets(queryStr,id) for id in docId]
+	urlsAndSnippets= zip(urls,snippets)
+	print urlsAndSnippets
+	return render_template("search_results.html",query = query ,urlsAndSnippets= urlsAndSnippets)
 if __name__ == "__main__":
     app.run(debug=True)

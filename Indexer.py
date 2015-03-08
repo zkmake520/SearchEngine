@@ -4,8 +4,10 @@ import os
 import json
 import argparse
 from util import *
+from collections import defaultdict
 import base64
 import logging
+import sys
 # todo : remove this assumptions
 # Indexer assumes thast collection fits in memory()
 class Indexer:
@@ -37,6 +39,7 @@ class Indexer:
 		jsonDumpToFile(self.urlToId,"urlToId")
 		jsonDumpToFile(self.invertedIndex,"inverted")
 		jsonDumpToFile(self.forwardIndex,"forward")
+
 class Searcher():
 	def __init__(self,indexDir):
 		self.invertedIndex = dict()
@@ -50,10 +53,38 @@ class Searcher():
 		self.invertedIndex=jsonLoadFromFile("inverted")
 		self.urlToId=jsonLoadFromFile("urlToId")
 		self.forwardIndex=jsonLoadFromFile("forward")
-	def findDocument(self,queryStr):
-		return sum([self.invertedIndex[word] for word in queryStr],[])
+
+	def findDocument_AND(self,queryStr):
+		documentIdList = defaultdict(lambda:0)
+		for word in queryStr:
+			for id in set([item[1] for item in self.invertedIndex.get(word,[])]):
+				documentIdList[id] += 1
+		return [docId for docId,cnt in documentIdList.iteritems() if cnt ==len(queryStr)]
+
+	def getSnippets(self,queryStr,id):
+		id = unicode(id)
+		currentWindow = []
+		minWindow = []
+		minSize = sys.maxint
+		for pos,word in enumerate(self.forwardIndex[id]):
+			if word in queryStr:
+				currentWindow.append((pos,word))
+				if len(currentWindow) > 1 and currentWindow[0][1] == word:
+					currentWindow.pop(0)
+				if len(currentWindow) == len(queryStr) and (pos-currentWindow[0][0] + 1) < minSize:
+					minWindow = currentWindow[:]
+					minSize = pos-currentWindow[0][0] + 1
+		docLength = len(self.forwardIndex[id])			
+		snippetsStart = max(minWindow[0][0]-8,0)
+		snippetsEnd = min(docLength, minWindow[len(minWindow)-1][0]+1+8)
+		return [(word,word in queryStr) for word in self.forwardIndex[id][snippetsStart:snippetsEnd]] #excellent implemention:return list of truple make critical word be true in turple
+
+	def getDocumentText(self,id):
+		return self.forwardIndex[unicode(id)]
+
 	def getUrl(self,id):  # here we load all data from files thus the type is string !
-		return self.urlToId[str(id)]	
+		return self.urlToId[unicode(id)]	
+
 def createIndexDir(storedDocumentDir,indexDir):
 	indexer = Indexer()
 	for fileName in os.listdir(storedDocumentDir):
