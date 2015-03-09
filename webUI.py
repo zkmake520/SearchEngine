@@ -22,7 +22,7 @@ def index():
 @app.route("/search_results/<query>")
 def search_results(query):
 	queryStr = queryTerms(query)
-	queryStr = [word for word in queryStr if word != ""]
+	queryStr = [term for term in queryStr if term != ""]
 	docId = searcher.findDocument_AND(queryStr)
 	urls = [searcher.getUrl(id) for id in docId]
 	snippets = [searcher.getSnippets(queryStr,id) for id in docId]

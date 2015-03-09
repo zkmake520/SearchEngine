@@ -56,6 +56,7 @@ class Crawler():
 
 def main():
 	logging.getLogger().setLevel(logging.INFO)
+	logging.getLogger("requests").setLevel(logging.WARNING)
 	parser = argparse.ArgumentParser(description = "Crawl /r/learnprogramming")
 	parser.add_argument("--startUrl", dest = "startUrl",required=True)
 	parser.add_argument("--storeDir", dest = "storeDir",required=True)
