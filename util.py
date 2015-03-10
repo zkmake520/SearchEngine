@@ -1,5 +1,5 @@
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup,SoupStrainer
 import logging
 import re
 _r_learnprogramming_url = re.compile(r'http://(www.)?reddit.com/r/learnprogramming')
@@ -15,6 +15,7 @@ def downloadUrl(url):
 		raise Exception("Non-OK status code: {}".format(r.status.code) )
 	return r.text
 
+_parseOnlyPart = SoupStrainer("div",{"class": "entry unvoted"})
 def parseRedditPost(html):
-	bs = BeautifulSoup(html)
+	bs = BeautifulSoup(html,parse_only = _parseOnlyPart)
 	return bs.select("div.usertext-body")[1].text
