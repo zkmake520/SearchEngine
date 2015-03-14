@@ -4,6 +4,7 @@ import logging
 import argparse
 import pickle
 import os.path 
+import json
 from collections import defaultdict
 def crawl(storeDir):
 	r = praw.Reddit(user_agent='ZKBot v0.2')
@@ -18,37 +19,41 @@ def crawl(storeDir):
 
 def storeAuthorCount(authorSubCount,storeDir):
 	with open(os.path.join(storeDir,"authorSubCount"),"w") as file:
-		pickle.dump(authorSubCount,file)
+		json.dump(authorSubCount,file,ensure_ascii=False)
 	file.close()
 
 def storeUrl(idToUrl,storeDir):
 	with open(os.path.join(storeDir,"idToUrl"),"w") as file:
-		pickle.dump(idToUrl,file)
+		json.dump(idToUrl,file,ensure_ascii=False)
 	file.close()
 
 def storeSub(submission,subIdDict,authorSubCount,idToUrl,storeDir):
+	i=0
 	for sub in submission:
+		print i
 		if sub.id not in subIdDict:   # if this submission is not repeated
 			subIdDict[sub.id] = True
 			idToUrl[sub.id] = sub.permalink
 			with open(os.path.join(storeDir,sub.id),"w") as file:
-				authorName = sub.author.name.encode("utf8") if sub.author != None else ""
+				authorName = sub.author.name if sub.author != None else ""
 				try:
 					#userLink = r.get_redditor(authorName)._url
 					userLink = "http://www.reddit.com/user/" + authorName+"/"
 					authorSubCount[authorName] = authorSubCount[authorName]+1 if authorName in authorSubCount else 1
-					pickle.dump([authorName,userLink.encode("utf8"),sub.title.encode("utf8"),sub.selftext.encode("utf8")],file)
+					json.dump({"author":authorName,"userlink":userLink,"title:":sub.title,"text":sub.selftext},file,ensure_ascii=False)
 				except Exception as e:
 					logging.exception(e)
 				file.close()
+
+		i +=1
 
 def crawlRepeatedly(storeDir):
 	r = praw.Reddit(user_agent="ZKBot v0.2")
 	idToUrl,subIdDict,authorSubCount = dict(),dict(),dict()	
 	submissions = praw.helpers.submission_stream(r,"learnprogramming")
 	storeSub(submissions,subIdDict,authorSubCount,idToUrl,storeDir)
-	storeAuthorCount(submissions,authorSubCount,storeDir)
-	storeUrl(submissions,idToUrl,storeDir)	
+	#storeAuthorCount(submissions,authorSubCount,storeDir)
+	#storeUrl(idToUrl,storeDir)	
 
 def main():
 	logging.getLogger().setLevel(logging.INFO)

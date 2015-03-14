@@ -9,8 +9,6 @@ import argparse
 from util import *
 
 
-
-
 class Crawler():
 	def __init__(self,startUrl,storeDir):
 		self.startUrl = startUrl;

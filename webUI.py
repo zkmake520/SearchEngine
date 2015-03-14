@@ -9,7 +9,7 @@ app = Flask(__name__)
 Bootstrap(app)
 searcher = Searcher("indexDB")
 class SearchForm(Form):
-    query = StringField('query', validators=[DataRequired()])
+    query = StringField("",validators=[DataRequired()])
     queryButton = SubmitField("Search")
 
 @app.route("/",methods =["GET","POST"])
