@@ -9,7 +9,7 @@ class Term():     # by define this, then what we store and query is the instance
 		self.stem = PorterStemmer().stem(originalWord).lower()
 	def __eq__(self,other):
 		return self.stem == other.stem
-	def __hash__(self):
+	def __hash__(self):   
 		return hash(self.stem)
 def tokenizeText(text):
 	sents = sent_tokenize(text)

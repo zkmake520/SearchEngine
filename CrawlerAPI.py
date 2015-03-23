@@ -30,7 +30,6 @@ def storeUrl(idToUrl,storeDir):
 def storeSub(submission,subIdDict,authorSubCount,idToUrl,storeDir):
 	i=0
 	for sub in submission:
-		print i
 		if sub.id not in subIdDict:   # if this submission is not repeated
 			subIdDict[sub.id] = True
 			idToUrl[sub.id] = sub.permalink
@@ -44,8 +43,6 @@ def storeSub(submission,subIdDict,authorSubCount,idToUrl,storeDir):
 				except Exception as e:
 					logging.exception(e)
 				file.close()
-
-		i +=1
 
 def crawlRepeatedly(storeDir):
 	r = praw.Reddit(user_agent="ZKBot v0.2")
