@@ -2,9 +2,9 @@
 {% block title %}Kan Zhou's Search Engine{% endblock %}
 {%import "bootstrap/wtf.html" as wtf%}
 {% block content %}
-<div class = "container" style = "margin-top:50%;margin-left:50%; text-align:center">
+<div class = "container" >
   <p ><h1 style="color:red">Koogle</h1></p>
-  <p>{{form.query(size=80)}}</p>
-  <p>{{form.queryButton}}</p>
+  <br/><br/>
+  <p>{{wtf.quick_form(form)}}</p>
  </div>
 {% endblock %}

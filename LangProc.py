@@ -11,6 +11,9 @@ class Term():     # by define this, then what we store and query is the instance
 		return self.stem == other.stem
 	def __hash__(self):   
 		return hash(self.stem)
+	def __repr__(self):
+		return self.originalWord
+		
 def tokenizeText(text):
 	sents = sent_tokenize(text)
 	tokens = list(itertools.chain(*[TreebankWordTokenizer().tokenize(sent) for sent in sents]))
