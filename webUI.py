@@ -12,7 +12,6 @@ Bootstrap(app)
 app.logger.setLevel(logging.DEBUG)
 searcher = Searcher("shelveDBSmall")
 
-
 class SearchForm(Form):
 	query = StringField("",validators=[DataRequired()])
 	queryButton = SubmitField("Search")
