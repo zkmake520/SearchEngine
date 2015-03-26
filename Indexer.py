@@ -165,7 +165,6 @@ def createIndexDir(storedDocumentDir,indexDir):
 		indexer.addDocument(base64.b16decode(fileName),parsedText)
 	indexer.dumpToDisk(indexDir)
 '''
-
 def createIndexDirApi(storedDocumentDir,indexDir,implemention=ShelveIndexer):
 	indexer = implemention()
 	indexer.startIndexer(indexDir)
